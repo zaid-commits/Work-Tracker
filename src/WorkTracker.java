@@ -80,7 +80,8 @@ public class WorkTracker {
     }
 
     private static void addSummary() {
-        String summary = JOptionPane.showInputDialog(null, "Enter a summary:", "Add Summary",
+        String summary = JOptionPane.showInputDialog(null, "What intresting happened today?",
+                "Zaid Loves listening about your day !",
                 JOptionPane.PLAIN_MESSAGE);
         if (summary != null && !summary.isEmpty()) {
             saveSummary(summary);
@@ -103,33 +104,40 @@ public class WorkTracker {
         return formatter.format(new Date());
     }
 
+    private static void addMessage() {
+        // String message = JOptionPane.showInputDialog(null, "Enter a message:", "Add
+        // Message",
+        String message = JOptionPane.showInputDialog(null, "Tell zaid what happened",
+                "Zaid Loves Listening to you :)",
 
-private static void addMessage() {
-    String message = JOptionPane.showInputDialog(null, "Enter a message:", "Add Message", JOptionPane.PLAIN_MESSAGE);
-    if (message != null && !message.isEmpty()) {
-        saveMessage(message);
-        updateMessages();
+                JOptionPane.PLAIN_MESSAGE);
+        if (message != null && !message.isEmpty()) {
+            saveMessage(message);
+            updateMessages();
+        }
     }
-}
 
-private static void clearMessages() {
-    try {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(MESSAGE_FILE));
-        writer.write("");
-        writer.close();
-        updateMessages();
-    } catch (IOException e) {
-        e.printStackTrace();
+    private static void clearMessages() {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(MESSAGE_FILE));
+            writer.write("");
+            writer.close();
+            updateMessages();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-}
 
-private static void saveMessage(String message) {
-    try {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(MESSAGE_FILE, true));
-        writer.write(message + "\n");
-        writer.close();
-    } catch (IOException e) {
-        e.printStackTrace();
+    private static void saveMessage(String message) {
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+        String formattedTime = formatter.format(new Date());
+
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(MESSAGE_FILE, true));
+            writer.write(formattedTime + " - " + message + "\n");
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-}
 }
