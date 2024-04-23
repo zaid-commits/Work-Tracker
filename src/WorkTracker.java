@@ -1,7 +1,7 @@
 package src;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+// import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.io.BufferedReader;
@@ -10,11 +10,15 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
-import org.jdatepicker.JDatePicker;
+import java.util.Properties;
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
@@ -26,6 +30,7 @@ public class WorkTracker {
     private static JTextArea messagesArea;
     private static JButton addSummaryButton;
     private static JLabel summaryButtonLabel;
+    private static UtilDateModel selectedDateModel = new UtilDateModel();
 
     public static void main(String[] args) {
         // Create a frame
@@ -95,10 +100,18 @@ public class WorkTracker {
     }
 
     private static void addDatePicker(JPanel buttonPanel) {
-        JSpinner dateSpinner = new JSpinner(new SpinnerDateModel());
-        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(dateSpinner, "yyyy-MM-dd");
-        dateSpinner.setEditor(dateEditor);
-        buttonPanel.add(dateSpinner);
+        UtilDateModel model = new UtilDateModel();
+        Properties properties = new Properties();
+        properties.put("text.today", "Today");
+        properties.put("text.month", "Month");
+        properties.put("text.year", "Year");
+        JDatePanelImpl datePanel = new JDatePanelImpl(model, properties);
+        JDatePickerImpl datePicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
+        datePicker.addActionListener(e -> {
+            selectedDateModel.setValue((Date) datePicker.getModel().getValue());
+            loadMessages();
+        });
+        buttonPanel.add(datePicker);
     }
 
     private static void addMessage() {
@@ -130,7 +143,7 @@ public class WorkTracker {
             if (!fileExists) {
                 writer.write("Message Log\n");
             }
-            writer.write(message + "\n");
+            writer.write(getFormattedDateTime() + " - " + message + "\n");
         } catch (IOException ex) {
             System.err.println("Error saving Message: " + ex.getMessage());
             JOptionPane.showMessageDialog(null, "Error saving message: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -144,7 +157,7 @@ public class WorkTracker {
             if (!fileExists) {
                 writer.write("Summary Log\n");
             }
-            writer.write(summary + "\n\n");
+            writer.write(getFormattedDateTime() + " - " + summary + "\n\n");
         } catch (IOException ex) {
             System.err.println("Error saving Summary: " + ex.getMessage());
             JOptionPane.showMessageDialog(null, "Error saving summary: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -152,19 +165,27 @@ public class WorkTracker {
     }
 
     private static void loadMessages() {
+        System.out.println("Loading messages for date: " + getFormattedDate(selectedDateModel.getValue()));
         List<String> messages = readFile(MESSAGE_FILENAME);
+        messagesArea.setText("");
         for (String message : messages) {
-            messagesArea.append("Message: " + message + "\n");
+            String[] parts = message.split(" - ", 2);
+            if (parts.length == 2) {
+                String messageDate = parts[0];
+                if (messageDate.equals(getFormattedDate(selectedDateModel.getValue()))) {
+                    messagesArea.append(message + "\n");
+                }
+            }
         }
     }
+    
 
     private static void loadSummaries() {
         List<String> summaries = readFile(SUMMARY_FILENAME);
         for (String summary : summaries) {
-            messagesArea.append("Summary:\n" + summary + "\n\n");
+            messagesArea.append(summary + "\n");
         }
     }
-
     private static List<String> readFile(String filename) {
         List<String> lines = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
@@ -175,6 +196,7 @@ public class WorkTracker {
         } catch (IOException ex) {
             System.err.println("Error reading file: " + ex.getMessage());
         }
+        System.out.println("Read " + lines.size() + " lines from file: " + filename);
         return lines;
     }
 
@@ -196,6 +218,18 @@ public class WorkTracker {
         return LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"));
     }
 
+    private static String getFormattedDate(Date date) {
+        String formattedDate = "";
+        if (date != null) {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            formattedDate = formatter.format(date);
+        }
+        System.out.println("Formatted date: " + formattedDate);
+        return formattedDate;
+    }
+    
+    
+
     private static void updateAddSummaryButtonState() {
         boolean isAfter10PM = LocalTime.now().isAfter(LocalTime.of(22, 0));
         addSummaryButton.setEnabled(isAfter10PM);
@@ -204,5 +238,24 @@ public class WorkTracker {
         Timer timer = new Timer(60000, e -> updateAddSummaryButtonState()); // Update every minute
         timer.setRepeats(true);
         timer.start();
+    }
+
+    private static class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
+        private final String datePattern = "yyyy-MM-dd";
+        private final SimpleDateFormat dateFormatter = new SimpleDateFormat(datePattern);
+
+        @Override
+        public Object stringToValue(String text) throws ParseException {
+            return dateFormatter.parseObject(text);
+        }
+
+        @Override
+        public String valueToString(Object value) throws ParseException {
+            if (value != null) {
+                Calendar cal = (Calendar) value;
+                return dateFormatter.format(cal.getTime());
+            }
+            return "";
+        }
     }
 }
