@@ -24,7 +24,7 @@ public class WorkTracker {
             }
 
             // Input message
-            String message = JOptionPane.showInputDialog("Enter what's going in you mind:");
+            String message = JOptionPane.showInputDialog("Enter what you are thinking now ");
 
             // Save message with current date and time
             LocalDateTime now = LocalDateTime.now();
@@ -32,10 +32,10 @@ public class WorkTracker {
             String formattedDateTime = now.format(formatter);
             writer.write(formattedDateTime + ": " + message + "\n");
 
-            JOptionPane.showMessageDialog(null, "Message saved successfully.");
+            JOptionPane.showMessageDialog(null, "Zaid loves to know what are you thinking :)");
         } catch (IOException e) {
             System.err.println("Error saving Message: " + e.getMessage());
-            JOptionPane.showMessageDialog(null, "Message saving emotion: " + e.getMessage(), "Error",
+            JOptionPane.showMessageDialog(null, "Saving message " + e.getMessage(), "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
