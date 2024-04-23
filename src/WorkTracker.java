@@ -16,7 +16,7 @@ public class WorkTracker {
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Work Tracker");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.setSize(800, 600);
 
         JPanel panel = new JPanel(new BorderLayout());
@@ -48,6 +48,18 @@ public class WorkTracker {
         Timer timer = new Timer(60000, e -> updateMessages());
         timer.start();
 
+        // Add window listener for the close operation
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                int choice = JOptionPane.showConfirmDialog(frame,
+                        "Do you really want to close the application?",
+                        "Close Application", JOptionPane.YES_NO_OPTION);
+                if (choice == JOptionPane.YES_OPTION) {
+                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                }
+            }
+        });
     }
 
     private static void updateMessages() {
@@ -95,15 +107,23 @@ public class WorkTracker {
     }
 
     private static void addSummary() {
-        String summary = JOptionPane.showInputDialog(null, "What intresting happened today?",
+        String summary = JOptionPane.showInputDialog(null, "What interesting happened today?",
                 "Zaid Loves listening about your day !",
                 JOptionPane.PLAIN_MESSAGE);
         if (summary != null && !summary.isEmpty()) {
             saveSummary(summary);
             updateMessages();
+        } else {
+            int choice = JOptionPane.showConfirmDialog(null, "Do you really want to cancel?", "Cancel Summary",
+                    JOptionPane.YES_NO_OPTION);
+            if (choice == JOptionPane.NO_OPTION) {
+                addSummary(); // Re-prompt for summary
+            } else {
+                JOptionPane.showMessageDialog(null, "Zaid will be disappointed if he knows you left without sharing your summary.",
+                        "Zaid's Message", JOptionPane.INFORMATION_MESSAGE);
+            }
         }
     }
-
     private static void saveSummary(String summary) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(SUMMARY_FILE, true));
@@ -120,27 +140,23 @@ public class WorkTracker {
     }
 
     private static void addMessage() {
-        String message = JOptionPane.showInputDialog(null, "Tell Zaid what happened", "Zaid Loves Listening to you :)",
-                JOptionPane.PLAIN_MESSAGE);
-        if (message != null && !message.isEmpty()) {
-            saveMessage(message);
-            updateMessages();
-        } else {
-            int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to cancel?", "Cancel Message",
-                    JOptionPane.YES_NO_OPTION);
-            if (choice == JOptionPane.NO_OPTION) {
-                addMessage(); // Open the dialog again if user cancels
-            } else {
-                JOptionPane.showMessageDialog(null,
-                        "Zaid will be disappointed if he knows you left without sharing your message.",
-                        "Zaid's Message", JOptionPane.INFORMATION_MESSAGE);
+        int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to discard the message?", "Discard Message",
+                JOptionPane.YES_NO_OPTION);
+        if (choice == JOptionPane.YES_OPTION) {
+            String message = JOptionPane.showInputDialog(null, "Tell Zaid what happened", "Zaid Loves Listening to you :)",
+                    JOptionPane.PLAIN_MESSAGE);
+            if (message != null && !message.isEmpty()) {
+                saveMessage(message);
+                updateMessages();
             }
+        } else {
+            JOptionPane.showMessageDialog(null, "Zaid will be disappointed if he knows you left without sharing your message.",
+                    "Zaid's Message", JOptionPane.INFORMATION_MESSAGE);
         }
     }
-
     private static void clearMessages() {
-        int choice = JOptionPane.showConfirmDialog(null, "Do you really want to erase all the memories with Zaid?",
-                "Clear Messages", JOptionPane.YES_NO_OPTION);
+        int choice = JOptionPane.showConfirmDialog(null, "Do you really want to erase all the memories with Zaid?", "Clear Messages",
+                JOptionPane.YES_NO_OPTION);
         if (choice == JOptionPane.YES_OPTION) {
             try {
                 BufferedWriter writer = new BufferedWriter(new FileWriter(MESSAGE_FILE));
