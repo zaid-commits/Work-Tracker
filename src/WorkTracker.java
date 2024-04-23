@@ -14,6 +14,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import org.jdatepicker.JDatePicker;
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
@@ -33,39 +34,20 @@ public class WorkTracker {
         frame.setSize(800, 600);
         frame.setLayout(new BorderLayout());
 
-        // Add a label with padding
-        JLabel label = new JLabel("Work Tracker");
-        label.setFont(new Font("Arial", Font.BOLD, 20));
-        label.setBorder(new EmptyBorder(10, 10, 10, 10));
-        frame.add(label, BorderLayout.NORTH);
+        // Add a title panel
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JLabel titleLabel = new JLabel("Work Tracker");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        titlePanel.add(titleLabel);
+        frame.add(titlePanel, BorderLayout.NORTH);
 
         // Add a panel for buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JButton addMessageButton = new JButton("Add Message");
-        addMessageButton.addActionListener(e -> addMessage());
-        buttonPanel.add(addMessageButton);
-
-        addSummaryButton = new JButton("Add Summary");
-        addSummaryButton.setEnabled(false);
-        addSummaryButton.addActionListener(e -> addSummary());
-        buttonPanel.add(addSummaryButton);
-
-        // Add a label for the "Add Summary" button
-        summaryButtonLabel = new JLabel("Summary will be available at 10:00 PM");
-        summaryButtonLabel.setForeground(Color.GRAY);
-        buttonPanel.add(summaryButtonLabel);
-
-        // Add a button to clear messages and summaries
-        JButton clearButton = new JButton("Clear");
-        clearButton.addActionListener(e -> clearMessagesAndSummaries());
-        buttonPanel.add(clearButton);
-
-        // Add a date picker
-        UtilDateModel model = new UtilDateModel();
-        JDatePanelImpl datePanel = new JDatePanelImpl(model);
-        JDatePickerImpl datePicker = new JDatePickerImpl(datePanel);
-        buttonPanel.add(datePicker);
-
+        addMessageButton(buttonPanel);
+        addSummaryButton(buttonPanel);
+        addSummaryButtonLabel(buttonPanel);
+        addClearButton(buttonPanel);
+        addDatePicker(buttonPanel);
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
         // Add a text area for displaying messages and summaries
@@ -85,6 +67,38 @@ public class WorkTracker {
 
         frame.setVisible(true);
         frame.setLocationRelativeTo(null);
+    }
+
+    private static void addMessageButton(JPanel buttonPanel) {
+        JButton addMessageButton = new JButton("Add Message");
+        addMessageButton.addActionListener(e -> addMessage());
+        buttonPanel.add(addMessageButton);
+    }
+
+    private static void addSummaryButton(JPanel buttonPanel) {
+        addSummaryButton = new JButton("Add Summary");
+        addSummaryButton.setEnabled(false);
+        addSummaryButton.addActionListener(e -> addSummary());
+        buttonPanel.add(addSummaryButton);
+    }
+
+    private static void addSummaryButtonLabel(JPanel buttonPanel) {
+        summaryButtonLabel = new JLabel("Summary will be available at 10:00 PM");
+        summaryButtonLabel.setForeground(Color.GRAY);
+        buttonPanel.add(summaryButtonLabel);
+    }
+
+    private static void addClearButton(JPanel buttonPanel) {
+        JButton clearButton = new JButton("Clear");
+        clearButton.addActionListener(e -> clearMessagesAndSummaries());
+        buttonPanel.add(clearButton);
+    }
+
+    private static void addDatePicker(JPanel buttonPanel) {
+        JSpinner dateSpinner = new JSpinner(new SpinnerDateModel());
+        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(dateSpinner, "yyyy-MM-dd");
+        dateSpinner.setEditor(dateEditor);
+        buttonPanel.add(dateSpinner);
     }
 
     private static void addMessage() {
