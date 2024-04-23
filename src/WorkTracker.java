@@ -14,6 +14,9 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import org.jdatepicker.impl.JDatePanelImpl;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
 
 public class WorkTracker {
     private static final String MESSAGE_FILENAME = "messages.txt";
@@ -21,6 +24,7 @@ public class WorkTracker {
 
     private static JTextArea messagesArea;
     private static JButton addSummaryButton;
+    private static JLabel summaryButtonLabel;
 
     public static void main(String[] args) {
         // Create a frame
@@ -46,10 +50,21 @@ public class WorkTracker {
         addSummaryButton.addActionListener(e -> addSummary());
         buttonPanel.add(addSummaryButton);
 
+        // Add a label for the "Add Summary" button
+        summaryButtonLabel = new JLabel("Summary will be available at 10:00 PM");
+        summaryButtonLabel.setForeground(Color.GRAY);
+        buttonPanel.add(summaryButtonLabel);
+
         // Add a button to clear messages and summaries
         JButton clearButton = new JButton("Clear");
         clearButton.addActionListener(e -> clearMessagesAndSummaries());
         buttonPanel.add(clearButton);
+
+        // Add a date picker
+        UtilDateModel model = new UtilDateModel();
+        JDatePanelImpl datePanel = new JDatePanelImpl(model);
+        JDatePickerImpl datePicker = new JDatePickerImpl(datePanel);
+        buttonPanel.add(datePicker);
 
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
@@ -74,7 +89,9 @@ public class WorkTracker {
 
     private static void addMessage() {
         String message = JOptionPane.showInputDialog(null, "Enter what you are thinking now", "Add Message", JOptionPane.PLAIN_MESSAGE);
-        if (message != null && !message.isEmpty()) {
+        if (message == null) {
+            JOptionPane.showMessageDialog(null, "Zaid would love if you didn't click cancel.", "Message", JOptionPane.INFORMATION_MESSAGE);
+        } else if (!message.isEmpty()) {
             saveMessage(MESSAGE_FILENAME, message);
             messagesArea.append(getFormattedDateTime() + " - Message: " + message + "\n");
             messagesArea.setCaretPosition(messagesArea.getDocument().getLength());
@@ -83,7 +100,9 @@ public class WorkTracker {
 
     private static void addSummary() {
         String summary = JOptionPane.showInputDialog(null, "Enter a summary of the day", "Add Summary", JOptionPane.PLAIN_MESSAGE);
-        if (summary != null && !summary.isEmpty()) {
+        if (summary == null) {
+            JOptionPane.showMessageDialog(null, "Zaid would love if you didn't click cancel.", "Summary", JOptionPane.INFORMATION_MESSAGE);
+        } else if (!summary.isEmpty()) {
             saveSummary(SUMMARY_FILENAME, summary);
             messagesArea.append(getFormattedDateTime() + " - Summary:\n" + summary + "\n\n");
             messagesArea.setCaretPosition(messagesArea.getDocument().getLength());
@@ -164,7 +183,10 @@ public class WorkTracker {
     }
 
     private static void updateAddSummaryButtonState() {
-        addSummaryButton.setEnabled(LocalTime.now().isAfter(LocalTime.of(21, 0)));
+        boolean isAfter10PM = LocalTime.now().isAfter(LocalTime.of(22, 0));
+        addSummaryButton.setEnabled(isAfter10PM);
+        summaryButtonLabel.setVisible(!isAfter10PM);
+
         Timer timer = new Timer(60000, e -> updateAddSummaryButtonState()); // Update every minute
         timer.setRepeats(true);
         timer.start();
