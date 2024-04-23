@@ -53,19 +53,19 @@ public class WorkTracker {
     private static void updateMessages() {
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
-
-        if (hour >= 21 || hour < 0) {
+    
+        if (hour >= 12 || hour < 5) {
             addButton.setEnabled(true);
             addButton.setText("Add Summary");
         } else {
             addButton.setEnabled(false);
             addButton.setText("Summary update enabled after 9 PM until 12 AM.");
         }
-
+    
         messagesArea.setText("Current Date and Time: " + getFormattedDateTime() + "\n");
         messagesArea.append("--------------------------------------------------\n");
         messagesArea.append("Messages:\n");
-
+    
         // Load messages from file and display them
         try {
             BufferedReader reader = new BufferedReader(new FileReader(MESSAGE_FILE));
@@ -77,8 +77,22 @@ public class WorkTracker {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    
+        messagesArea.append("\n--------------------------------------------------\n");
+        messagesArea.append("Summaries:\n");
+    
+        // Load summaries from file and display them
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(SUMMARY_FILE));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                messagesArea.append(line + "\n");
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
-
     private static void addSummary() {
         String summary = JOptionPane.showInputDialog(null, "What intresting happened today?",
                 "Zaid Loves listening about your day !",
