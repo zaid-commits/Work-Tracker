@@ -26,16 +26,22 @@ public class WorkTracker {
             // Input message
             String message = JOptionPane.showInputDialog("Enter what you are thinking now ");
 
-            // Save message with current date and time
-            LocalDateTime now = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            String formattedDateTime = now.format(formatter);
-            writer.write(formattedDateTime + ": " + message + "\n");
+            // If the user clicks "Cancel", message will be null
+            if (message == null) {
+                JOptionPane.showMessageDialog(null,
+                        "Zaid would love it if you typed something instead of clicking cancel ;)");
+            } else {
+                // Save message with current date and time
+                LocalDateTime now = LocalDateTime.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                String formattedDateTime = now.format(formatter);
+                writer.write(formattedDateTime + ": " + message + "\n");
 
-            JOptionPane.showMessageDialog(null, "Zaid loves to know what are you thinking :)");
+                JOptionPane.showMessageDialog(null, "Zaid loves to know what you are thinking :)");
+            }
         } catch (IOException e) {
             System.err.println("Error saving Message: " + e.getMessage());
-            JOptionPane.showMessageDialog(null, "Saving message " + e.getMessage(), "Error",
+            JOptionPane.showMessageDialog(null, "Error saving message: " + e.getMessage(), "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
