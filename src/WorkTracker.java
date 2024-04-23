@@ -53,7 +53,7 @@ public class WorkTracker {
     private static void updateMessages() {
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
-    
+
         if (hour >= 12 || hour < 5) {
             addButton.setEnabled(true);
             addButton.setText("Add Summary");
@@ -61,11 +61,11 @@ public class WorkTracker {
             addButton.setEnabled(false);
             addButton.setText("Summary update enabled after 9 PM until 12 AM.");
         }
-    
+
         messagesArea.setText("Current Date and Time: " + getFormattedDateTime() + "\n");
         messagesArea.append("--------------------------------------------------\n");
         messagesArea.append("Messages:\n");
-    
+
         // Load messages from file and display them
         try {
             BufferedReader reader = new BufferedReader(new FileReader(MESSAGE_FILE));
@@ -77,10 +77,10 @@ public class WorkTracker {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    
+
         messagesArea.append("\n--------------------------------------------------\n");
         messagesArea.append("Summaries:\n");
-    
+
         // Load summaries from file and display them
         try {
             BufferedReader reader = new BufferedReader(new FileReader(SUMMARY_FILE));
@@ -93,6 +93,7 @@ public class WorkTracker {
             e.printStackTrace();
         }
     }
+
     private static void addSummary() {
         String summary = JOptionPane.showInputDialog(null, "What intresting happened today?",
                 "Zaid Loves listening about your day !",
@@ -119,26 +120,36 @@ public class WorkTracker {
     }
 
     private static void addMessage() {
-        // String message = JOptionPane.showInputDialog(null, "Enter a message:", "Add
-        // Message",
-        String message = JOptionPane.showInputDialog(null, "Tell zaid what happened",
-                "Zaid Loves Listening to you :)",
-
+        String message = JOptionPane.showInputDialog(null, "Tell Zaid what happened", "Zaid Loves Listening to you :)",
                 JOptionPane.PLAIN_MESSAGE);
         if (message != null && !message.isEmpty()) {
             saveMessage(message);
             updateMessages();
+        } else {
+            int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to cancel?", "Cancel Message",
+                    JOptionPane.YES_NO_OPTION);
+            if (choice == JOptionPane.NO_OPTION) {
+                addMessage(); // Open the dialog again if user cancels
+            } else {
+                JOptionPane.showMessageDialog(null,
+                        "Zaid will be disappointed if he knows you left without sharing your message.",
+                        "Zaid's Message", JOptionPane.INFORMATION_MESSAGE);
+            }
         }
     }
 
     private static void clearMessages() {
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(MESSAGE_FILE));
-            writer.write("");
-            writer.close();
-            updateMessages();
-        } catch (IOException e) {
-            e.printStackTrace();
+        int choice = JOptionPane.showConfirmDialog(null, "Do you really want to erase all the memories with Zaid?",
+                "Clear Messages", JOptionPane.YES_NO_OPTION);
+        if (choice == JOptionPane.YES_OPTION) {
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter(MESSAGE_FILE));
+                writer.write("");
+                writer.close();
+                updateMessages();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
