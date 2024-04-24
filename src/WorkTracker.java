@@ -1,4 +1,5 @@
 package src;
+
 //check"
 import javax.swing.*;
 import java.awt.*;
@@ -23,8 +24,8 @@ public class WorkTracker {
 
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException |
-                 IllegalAccessException e) {
+        } catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException
+                | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
@@ -71,17 +72,21 @@ public class WorkTracker {
         });
     }
 
-    private static void updateMessages() {
-        Calendar calendar = Calendar.getInstance();
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-
-        if (hour >= 12 || hour < 5) {
+    private static void updateSummaryButton(int hour) {
+        if (hour >= 20 || hour < 0) { // 8 PM to 12 AM
             addButton.setEnabled(true);
             addButton.setText("Add Summary");
         } else {
             addButton.setEnabled(false);
-            addButton.setText("Summary update enabled after 9 PM until 12 AM.");
+            addButton.setText("Summary not available. Available from 8 PM to 12 AM.");
         }
+    }
+
+    private static void updateMessages() {
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+
+        updateSummaryButton(hour);
 
         messagesArea.setText("Current Date and Time: " + getFormattedDateTime() + "\n");
         messagesArea.append("--------------------------------------------------\n");
@@ -128,11 +133,13 @@ public class WorkTracker {
             if (choice == JOptionPane.NO_OPTION) {
                 addSummary(); // Re-prompt for summary
             } else {
-                JOptionPane.showMessageDialog(null, "Zaid will be disappointed if he knows you left without sharing your summary.",
+                JOptionPane.showMessageDialog(null,
+                        "Zaid will be disappointed if he knows you left without sharing your summary.",
                         "Zaid's Message", JOptionPane.INFORMATION_MESSAGE);
             }
         }
     }
+
     private static void saveSummary(String summary) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(SUMMARY_FILE, true));
@@ -157,17 +164,20 @@ public class WorkTracker {
             saveMessage(message);
             updateMessages();
         } else {
-            int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to discard the message?", "Discard Message",
+            int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to discard the message?",
+                    "Discard Message",
                     JOptionPane.YES_NO_OPTION);
 
             if (choice == JOptionPane.YES_OPTION) {
-                JOptionPane.showMessageDialog(null, "Zaid will be disappointed if he knows you left without sharing your message.",
+                JOptionPane.showMessageDialog(null,
+                        "Zaid will be disappointed if he knows you left without sharing your message.",
                         "Zaid's Message", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 addMessage();
             }
         }
     }
+
     private static void clear() {
 
         JDialog dialog = new JDialog(frame, "Clear");
@@ -182,7 +192,8 @@ public class WorkTracker {
         JButton clearSummaryButton = new JButton("Clear Summary");
 
         clearMessagesButton.addActionListener(e -> {
-            int choice = JOptionPane.showConfirmDialog(null, "Do you really want to erase all the memories with Zaid?", "Clear Messages",
+            int choice = JOptionPane.showConfirmDialog(null, "Do you really want to erase all the memories with Zaid?",
+                    "Clear Messages",
                     JOptionPane.YES_NO_OPTION);
 
             if (choice != JOptionPane.YES_OPTION)
@@ -201,7 +212,8 @@ public class WorkTracker {
         });
 
         clearSummaryButton.addActionListener(e -> {
-            int choice = JOptionPane.showConfirmDialog(null, "Do you really want to erase all the memories with Zaid?", "Clear Summary",
+            int choice = JOptionPane.showConfirmDialog(null, "Do you really want to erase all the memories with Zaid?",
+                    "Clear Summary",
                     JOptionPane.YES_NO_OPTION);
 
             if (choice != JOptionPane.YES_OPTION)
