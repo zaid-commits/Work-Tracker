@@ -11,11 +11,13 @@ public class WorkTracker {
     private static final String MESSAGE_FILE = "messages.txt";
     private static final String SUMMARY_FILE = "summary.txt";
 
+    private static JFrame frame;
+
     private static JTextArea messagesArea;
     private static JButton addButton;
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Work Tracker");
+        frame = new JFrame("Work Tracker");
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.setSize(800, 600);
 
@@ -35,7 +37,7 @@ public class WorkTracker {
         buttonPanel.add(addMessageButton);
 
         JButton clearButton = new JButton("Clear");
-        clearButton.addActionListener(e -> clearMessages());
+        clearButton.addActionListener(e -> clear());
         buttonPanel.add(clearButton);
 
         panel.add(buttonPanel, BorderLayout.SOUTH);
@@ -159,19 +161,58 @@ public class WorkTracker {
             }
         }
     }
-    private static void clearMessages() {
-        int choice = JOptionPane.showConfirmDialog(null, "Do you really want to erase all the memories with Zaid?", "Clear Messages",
-                JOptionPane.YES_NO_OPTION);
-        if (choice == JOptionPane.YES_OPTION) {
+    private static void clear() {
+
+        JDialog dialog = new JDialog(frame, "Clear");
+        dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        dialog.setSize(400, 200);
+        dialog.setLayout(new FlowLayout());
+
+        JButton clearMessagesButton = new JButton("Clear Messages");
+        JButton clearSummaryButton = new JButton("Clear Summary");
+
+        clearMessagesButton.addActionListener(e -> {
+            int choice = JOptionPane.showConfirmDialog(null, "Do you really want to erase all the memories with Zaid?", "Clear Messages",
+                    JOptionPane.YES_NO_OPTION);
+
+            if (choice != JOptionPane.YES_OPTION)
+                return;
+
             try {
                 BufferedWriter writer = new BufferedWriter(new FileWriter(MESSAGE_FILE));
                 writer.write("");
                 writer.close();
                 updateMessages();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException e1) {
+                e1.printStackTrace();
             }
-        }
+
+            dialog.dispose();
+        });
+
+        clearSummaryButton.addActionListener(e -> {
+            int choice = JOptionPane.showConfirmDialog(null, "Do you really want to erase all the memories with Zaid?", "Clear Summary",
+                    JOptionPane.YES_NO_OPTION);
+
+            if (choice != JOptionPane.YES_OPTION)
+                return;
+
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter(SUMMARY_FILE));
+                writer.write("");
+                writer.close();
+                updateMessages();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+            dialog.dispose();
+        });
+
+        dialog.add(clearMessagesButton);
+        dialog.add(clearSummaryButton);
+
+        dialog.setVisible(true);
     }
 
     private static void saveMessage(String message) {
