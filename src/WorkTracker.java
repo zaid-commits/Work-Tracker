@@ -284,7 +284,7 @@ public class WorkTracker {
     private static void saveMessage(String message) {
         SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
         String formattedTime = formatter.format(new Date());
-
+//added somthign
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(MESSAGE_FILE, true));
             writer.write(formattedTime + " - " + message + "\n");
