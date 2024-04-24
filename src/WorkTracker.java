@@ -21,6 +21,13 @@ public class WorkTracker {
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.setSize(800, 600);
 
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException |
+                 IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
         JPanel panel = new JPanel(new BorderLayout());
 
         messagesArea = new JTextArea();
@@ -165,8 +172,11 @@ public class WorkTracker {
 
         JDialog dialog = new JDialog(frame, "Clear");
         dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        dialog.setSize(400, 200);
-        dialog.setLayout(new FlowLayout());
+        dialog.setMinimumSize(new Dimension(200, 120));
+        dialog.setPreferredSize(new Dimension(200, 120));
+        dialog.setMaximumSize(new Dimension(200, 120));
+        dialog.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        dialog.setLocationRelativeTo(null);
 
         JButton clearMessagesButton = new JButton("Clear Messages");
         JButton clearSummaryButton = new JButton("Clear Summary");
