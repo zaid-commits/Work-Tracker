@@ -7,6 +7,8 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class WorkTracker {
     private static final String MESSAGE_FILE = "messages.txt";
@@ -21,43 +23,47 @@ public class WorkTracker {
         frame = new JFrame("Work Tracker");
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.setSize(800, 600);
-
+    
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException
                 | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
-
+    
         JPanel panel = new JPanel(new BorderLayout());
-
+    
         messagesArea = new JTextArea();
         messagesArea.setEditable(false);
         panel.add(new JScrollPane(messagesArea), BorderLayout.CENTER);
-
+    
         JPanel buttonPanel = new JPanel(new FlowLayout());
         addButton = new JButton("Add Summary");
         addButton.addActionListener(e -> addSummary());
         buttonPanel.add(addButton);
-
+    
         JButton addMessageButton = new JButton("Add Message");
         addMessageButton.addActionListener(e -> addMessage());
         buttonPanel.add(addMessageButton);
-
+    
         JButton clearButton = new JButton("Clear");
         clearButton.addActionListener(e -> clear());
         buttonPanel.add(clearButton);
-
+    
+        JButton aboutDeveloperButton = new JButton("About Developer");
+        aboutDeveloperButton.addActionListener(e -> showAboutDeveloper());
+        buttonPanel.add(aboutDeveloperButton);
+    
         panel.add(buttonPanel, BorderLayout.SOUTH);
-
+    
         frame.add(panel);
         frame.setVisible(true);
-
+    
         updateMessages();
-
+    
         Timer timer = new Timer(60000, e -> updateMessages());
         timer.start();
-
+    
         // Add window listener for the close operation
         frame.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
@@ -71,7 +77,45 @@ public class WorkTracker {
             }
         });
     }
-
+    
+    private static void showAboutDeveloper() {
+        JDialog dialog = new JDialog(frame, "About Developer", true);
+        dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        dialog.setSize(400, 200);
+        dialog.setLayout(new BorderLayout());
+        dialog.setLocationRelativeTo(frame);
+    
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        JTextArea developerInfo = new JTextArea();
+        developerInfo.setEditable(false);
+        developerInfo.setText("Developer Name: John Doe\n\n"
+                + "A passionate developer with experience in Java GUI applications.\n\n"
+                + "GitHub: https://github.com/johndoe\n"
+                + "LinkedIn: https://linkedin.com/in/johndoe");
+        contentPanel.add(developerInfo, BorderLayout.CENTER);
+    
+        JPanel linkPanel = new JPanel(new FlowLayout());
+        JButton githubButton = new JButton("GitHub");
+        githubButton.addActionListener(e -> openLink("https://github.com/johndoe"));
+        linkPanel.add(githubButton);
+    
+        JButton linkedInButton = new JButton("LinkedIn");
+        linkedInButton.addActionListener(e -> openLink("https://linkedin.com/in/johndoe"));
+        linkPanel.add(linkedInButton);
+    
+        contentPanel.add(linkPanel, BorderLayout.SOUTH);
+        dialog.add(contentPanel);
+        dialog.setVisible(true);
+    }
+    
+    private static void openLink(String url) {
+        try {
+            Desktop.getDesktop().browse(new URI(url));
+        } catch (IOException | URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+    
     private static void updateSummaryButton(int hour) {
         if (hour >= 20 || hour < 0) { // 8 PM to 12 AM
             addButton.setEnabled(true);
@@ -81,17 +125,17 @@ public class WorkTracker {
             addButton.setText("Summary not available. Available from 8 PM to 12 AM.");
         }
     }
-
+    
     private static void updateMessages() {
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
-
+    
         updateSummaryButton(hour);
-
+    
         messagesArea.setText("Current Date and Time: " + getFormattedDateTime() + "\n");
         messagesArea.append("--------------------------------------------------\n");
         messagesArea.append("Messages:\n");
-
+    
         // Load messages from file and display them
         try {
             BufferedReader reader = new BufferedReader(new FileReader(MESSAGE_FILE));
@@ -103,10 +147,10 @@ public class WorkTracker {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+    
         messagesArea.append("\n--------------------------------------------------\n");
         messagesArea.append("Summaries:\n");
-
+    
         // Load summaries from file and display them
         try {
             BufferedReader reader = new BufferedReader(new FileReader(SUMMARY_FILE));
@@ -119,7 +163,7 @@ public class WorkTracker {
             e.printStackTrace();
         }
     }
-
+    
     private static void addSummary() {
         String summary = JOptionPane.showInputDialog(null, "What interesting happened today?",
                 "Zaid Loves listening about your day !",
@@ -139,7 +183,7 @@ public class WorkTracker {
             }
         }
     }
-
+    
     private static void saveSummary(String summary) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(SUMMARY_FILE, true));
@@ -149,17 +193,17 @@ public class WorkTracker {
             e.printStackTrace();
         }
     }
-
+    
     private static String getFormattedDateTime() {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return formatter.format(new Date());
     }
-
+    
     private static void addMessage() {
-
+    
         String message = JOptionPane.showInputDialog(null, "Tell Zaid what happened", "Zaid Loves Listening to you :)",
                 JOptionPane.PLAIN_MESSAGE);
-
+    
         if (message != null && !message.isEmpty()) {
             saveMessage(message);
             updateMessages();
@@ -167,7 +211,7 @@ public class WorkTracker {
             int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to discard the message?",
                     "Discard Message",
                     JOptionPane.YES_NO_OPTION);
-
+    
             if (choice == JOptionPane.YES_OPTION) {
                 JOptionPane.showMessageDialog(null,
                         "Zaid will be disappointed if he knows you left without sharing your message.",
@@ -177,9 +221,9 @@ public class WorkTracker {
             }
         }
     }
-
+    
     private static void clear() {
-
+    
         JDialog dialog = new JDialog(frame, "Clear");
         dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         dialog.setMinimumSize(new Dimension(200, 120));
@@ -187,18 +231,18 @@ public class WorkTracker {
         dialog.setMaximumSize(new Dimension(200, 120));
         dialog.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
         dialog.setLocationRelativeTo(null);
-
+    
         JButton clearMessagesButton = new JButton("Clear Messages");
         JButton clearSummaryButton = new JButton("Clear Summary");
-
+    
         clearMessagesButton.addActionListener(e -> {
             int choice = JOptionPane.showConfirmDialog(null, "Do you really want to erase all the memories with Zaid?",
                     "Clear Messages",
                     JOptionPane.YES_NO_OPTION);
-
+    
             if (choice != JOptionPane.YES_OPTION)
                 return;
-
+    
             try {
                 BufferedWriter writer = new BufferedWriter(new FileWriter(MESSAGE_FILE));
                 writer.write("");
@@ -207,18 +251,18 @@ public class WorkTracker {
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
-
+    
             dialog.dispose();
         });
-
+    
         clearSummaryButton.addActionListener(e -> {
             int choice = JOptionPane.showConfirmDialog(null, "Do you really want to erase all the memories with Zaid?",
                     "Clear Summary",
                     JOptionPane.YES_NO_OPTION);
-
+    
             if (choice != JOptionPane.YES_OPTION)
                 return;
-
+    
             try {
                 BufferedWriter writer = new BufferedWriter(new FileWriter(SUMMARY_FILE));
                 writer.write("");
@@ -227,20 +271,20 @@ public class WorkTracker {
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
-
+    
             dialog.dispose();
         });
-
+    
         dialog.add(clearMessagesButton);
         dialog.add(clearSummaryButton);
-
+    
         dialog.setVisible(true);
     }
-
+    
     private static void saveMessage(String message) {
         SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
         String formattedTime = formatter.format(new Date());
-
+    
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(MESSAGE_FILE, true));
             writer.write(formattedTime + " - " + message + "\n");
@@ -249,4 +293,4 @@ public class WorkTracker {
             e.printStackTrace();
         }
     }
-}
+}    
