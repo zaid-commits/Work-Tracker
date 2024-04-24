@@ -11,13 +11,22 @@ public class WorkTracker {
     private static final String MESSAGE_FILE = "messages.txt";
     private static final String SUMMARY_FILE = "summary.txt";
 
+    private static JFrame frame;
+
     private static JTextArea messagesArea;
     private static JButton addButton;
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Work Tracker");
+        frame = new JFrame("Work Tracker");
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.setSize(800, 600);
+
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException |
+                 IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
 
         JPanel panel = new JPanel(new BorderLayout());
 
@@ -35,7 +44,7 @@ public class WorkTracker {
         buttonPanel.add(addMessageButton);
 
         JButton clearButton = new JButton("Clear");
-        clearButton.addActionListener(e -> clearMessages());
+        clearButton.addActionListener(e -> clear());
         buttonPanel.add(clearButton);
 
         panel.add(buttonPanel, BorderLayout.SOUTH);
@@ -119,13 +128,11 @@ public class WorkTracker {
             if (choice == JOptionPane.NO_OPTION) {
                 addSummary(); // Re-prompt for summary
             } else {
-                JOptionPane.showMessageDialog(null,
-                        "Zaid will be disappointed if he knows you left without sharing your summary.",
+                JOptionPane.showMessageDialog(null, "Zaid will be disappointed if he knows you left without sharing your summary.",
                         "Zaid's Message", JOptionPane.INFORMATION_MESSAGE);
             }
         }
     }
-
     private static void saveSummary(String summary) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(SUMMARY_FILE, true));
@@ -142,38 +149,80 @@ public class WorkTracker {
     }
 
     private static void addMessage() {
-        int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to discard the message?",
-                "Discard Message",
-                JOptionPane.YES_NO_OPTION);
-        if (choice == JOptionPane.YES_OPTION) {
-            String message = JOptionPane.showInputDialog(null, "Tell Zaid what happened",
-                    "Zaid Loves Listening to you :)",
-                    JOptionPane.PLAIN_MESSAGE);
-            if (message != null && !message.isEmpty()) {
-                saveMessage(message);
-                updateMessages();
-            }
+
+        String message = JOptionPane.showInputDialog(null, "Tell Zaid what happened", "Zaid Loves Listening to you :)",
+                JOptionPane.PLAIN_MESSAGE);
+
+        if (message != null && !message.isEmpty()) {
+            saveMessage(message);
+            updateMessages();
         } else {
-            JOptionPane.showMessageDialog(null,
-                    "Zaid will be disappointed if he knows you left without sharing your message.",
-                    "Zaid's Message", JOptionPane.INFORMATION_MESSAGE);
+            int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to discard the message?", "Discard Message",
+                    JOptionPane.YES_NO_OPTION);
+
+            if (choice == JOptionPane.YES_OPTION) {
+                JOptionPane.showMessageDialog(null, "Zaid will be disappointed if he knows you left without sharing your message.",
+                        "Zaid's Message", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                addMessage();
+            }
         }
     }
+    private static void clear() {
 
-    private static void clearMessages() {
-        int choice = JOptionPane.showConfirmDialog(null, "Do you really want to erase all the memories with Zaid?",
-                "Clear Messages",
-                JOptionPane.YES_NO_OPTION);
-        if (choice == JOptionPane.YES_OPTION) {
+        JDialog dialog = new JDialog(frame, "Clear");
+        dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        dialog.setMinimumSize(new Dimension(200, 120));
+        dialog.setPreferredSize(new Dimension(200, 120));
+        dialog.setMaximumSize(new Dimension(200, 120));
+        dialog.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        dialog.setLocationRelativeTo(null);
+
+        JButton clearMessagesButton = new JButton("Clear Messages");
+        JButton clearSummaryButton = new JButton("Clear Summary");
+
+        clearMessagesButton.addActionListener(e -> {
+            int choice = JOptionPane.showConfirmDialog(null, "Do you really want to erase all the memories with Zaid?", "Clear Messages",
+                    JOptionPane.YES_NO_OPTION);
+
+            if (choice != JOptionPane.YES_OPTION)
+                return;
+
             try {
                 BufferedWriter writer = new BufferedWriter(new FileWriter(MESSAGE_FILE));
                 writer.write("");
                 writer.close();
                 updateMessages();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException e1) {
+                e1.printStackTrace();
             }
-        }
+
+            dialog.dispose();
+        });
+
+        clearSummaryButton.addActionListener(e -> {
+            int choice = JOptionPane.showConfirmDialog(null, "Do you really want to erase all the memories with Zaid?", "Clear Summary",
+                    JOptionPane.YES_NO_OPTION);
+
+            if (choice != JOptionPane.YES_OPTION)
+                return;
+
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter(SUMMARY_FILE));
+                writer.write("");
+                writer.close();
+                updateMessages();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+            dialog.dispose();
+        });
+
+        dialog.add(clearMessagesButton);
+        dialog.add(clearSummaryButton);
+
+        dialog.setVisible(true);
     }
 
     private static void saveMessage(String message) {
