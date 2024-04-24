@@ -119,13 +119,11 @@ public class WorkTracker {
             if (choice == JOptionPane.NO_OPTION) {
                 addSummary(); // Re-prompt for summary
             } else {
-                JOptionPane.showMessageDialog(null,
-                        "Zaid will be disappointed if he knows you left without sharing your summary.",
+                JOptionPane.showMessageDialog(null, "Zaid will be disappointed if he knows you left without sharing your summary.",
                         "Zaid's Message", JOptionPane.INFORMATION_MESSAGE);
             }
         }
     }
-
     private static void saveSummary(String summary) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(SUMMARY_FILE, true));
@@ -142,27 +140,27 @@ public class WorkTracker {
     }
 
     private static void addMessage() {
-        int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to discard the message?",
-                "Discard Message",
-                JOptionPane.YES_NO_OPTION);
-        if (choice == JOptionPane.YES_OPTION) {
-            String message = JOptionPane.showInputDialog(null, "Tell Zaid what happened",
-                    "Zaid Loves Listening to you :)",
-                    JOptionPane.PLAIN_MESSAGE);
-            if (message != null && !message.isEmpty()) {
-                saveMessage(message);
-                updateMessages();
-            }
+
+        String message = JOptionPane.showInputDialog(null, "Tell Zaid what happened", "Zaid Loves Listening to you :)",
+                JOptionPane.PLAIN_MESSAGE);
+
+        if (message != null && !message.isEmpty()) {
+            saveMessage(message);
+            updateMessages();
         } else {
-            JOptionPane.showMessageDialog(null,
-                    "Zaid will be disappointed if he knows you left without sharing your message.",
-                    "Zaid's Message", JOptionPane.INFORMATION_MESSAGE);
+            int choice = JOptionPane.showConfirmDialog(null, "Are you sure you want to discard the message?", "Discard Message",
+                    JOptionPane.YES_NO_OPTION);
+
+            if (choice == JOptionPane.YES_OPTION) {
+                JOptionPane.showMessageDialog(null, "Zaid will be disappointed if he knows you left without sharing your message.",
+                        "Zaid's Message", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                addMessage();
+            }
         }
     }
-
     private static void clearMessages() {
-        int choice = JOptionPane.showConfirmDialog(null, "Do you really want to erase all the memories with Zaid?",
-                "Clear Messages",
+        int choice = JOptionPane.showConfirmDialog(null, "Do you really want to erase all the memories with Zaid?", "Clear Messages",
                 JOptionPane.YES_NO_OPTION);
         if (choice == JOptionPane.YES_OPTION) {
             try {
